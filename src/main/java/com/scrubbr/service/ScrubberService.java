@@ -14,6 +14,8 @@ import java.util.List;
 @Service
 public class ScrubberService {
 
+    private static final int MAX_DOWNLOAD_NAME_LENGTH = 120;
+
     private final FileTypeDetector fileTypeDetector;
     private final ImageService imageService;
     private final PdfService pdfService;
@@ -83,9 +85,23 @@ public class ScrubberService {
 
     private String cleanName(String original, String extension) {
         String base = (original == null || original.isBlank()) ? "file" : original;
+        int slash = Math.max(base.lastIndexOf('/'), base.lastIndexOf('\\'));
+        if (slash >= 0) {
+            base = base.substring(slash + 1);
+        }
         int dot = base.lastIndexOf('.');
         if (dot > 0) {
             base = base.substring(0, dot);
+        }
+        base = base.replaceAll("[^A-Za-z0-9._ -]", "_").strip();
+        while (base.startsWith(".") || base.startsWith("-")) {
+            base = base.substring(1).strip();
+        }
+        if (base.isBlank()) {
+            base = "file";
+        }
+        if (base.length() > MAX_DOWNLOAD_NAME_LENGTH) {
+            base = base.substring(0, MAX_DOWNLOAD_NAME_LENGTH).strip();
         }
         return base + "-scrubbed." + extension;
     }

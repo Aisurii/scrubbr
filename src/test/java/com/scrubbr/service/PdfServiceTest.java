@@ -57,10 +57,9 @@ class PdfServiceTest {
             assertThat(reopened.getNumberOfPages()).isEqualTo(1);
             assertThat(reopened.getDocumentInformation().getAuthor()).isNull();
 
-            // The visible email text has been painted over (black boxes drawn on top).
+            // The cleaned copy is flattened, so redacted text is no longer extractable.
             String textAfter = new PDFTextStripper().getText(reopened);
-            // Even if the original glyphs remain in the stream, no clean copy should
-            // surface the address as before redaction — at minimum a box now covers it.
+            assertThat(textAfter).doesNotContain("support@acme.com");
             assertThat(textAfter).doesNotContain("Jane Author");
         }
     }

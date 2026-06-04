@@ -52,6 +52,18 @@ class ScrubberControllerTest {
     }
 
     @Test
+    void cleanSanitizesDownloadFilename() throws Exception {
+        MockMultipartFile file = new MockMultipartFile(
+                "file", "../secret\"\r\nX-Bad: yes.pdf", "application/pdf",
+                buildPdf("Email me: agent@spy.gov"));
+
+        mockMvc.perform(multipart("/api/clean").file(file))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Disposition", containsString("secret___X-Bad_ yes-scrubbed.pdf")))
+                .andExpect(header().doesNotExist("X-Bad"));
+    }
+
+    @Test
     void unsupportedFileIsReportedNotCleaned() throws Exception {
         MockMultipartFile file = new MockMultipartFile(
                 "file", "notes.txt", "text/plain", "just some text".getBytes());

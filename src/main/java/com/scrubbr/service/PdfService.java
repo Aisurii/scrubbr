@@ -8,11 +8,17 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDDocumentInformation;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
+import org.apache.pdfbox.pdmodel.graphics.image.JPEGFactory;
+import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 import org.apache.pdfbox.text.PDFTextStripper;
 import org.apache.pdfbox.text.TextPosition;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,6 +28,9 @@ import java.util.List;
 /** Reveals and removes hidden metadata and PII in PDF files. */
 @Service
 public class PdfService {
+
+    private static final float RASTER_DPI = 200f;
+    private static final float JPEG_QUALITY = 0.92f;
 
     private final PiiDetector piiDetector;
 
@@ -42,7 +51,7 @@ public class PdfService {
         }
     }
 
-    /** Wipes metadata and paints opaque boxes over every PII match. */
+    /** Wipes metadata and returns a flattened copy where redacted text is no longer extractable. */
     public CleanResult clean(byte[] data) throws IOException {
         try (PDDocument doc = Loader.loadPDF(data)) {
             CapturingStripper stripper = new CapturingStripper();
@@ -75,9 +84,32 @@ public class PdfService {
             doc.setDocumentInformation(new PDDocumentInformation());
             doc.getDocumentCatalog().setMetadata(null);
 
+            return new CleanResult(flatten(doc), redactions);
+        }
+    }
+
+    private byte[] flatten(PDDocument source) throws IOException {
+        PDFRenderer renderer = new PDFRenderer(source);
+        try (PDDocument target = new PDDocument()) {
+            target.setDocumentInformation(new PDDocumentInformation());
+            target.getDocumentCatalog().setMetadata(null);
+
+            for (int pageIndex = 0; pageIndex < source.getNumberOfPages(); pageIndex++) {
+                PDPage sourcePage = source.getPage(pageIndex);
+                PDRectangle mediaBox = sourcePage.getMediaBox();
+                PDPage targetPage = new PDPage(new PDRectangle(mediaBox.getWidth(), mediaBox.getHeight()));
+                target.addPage(targetPage);
+
+                BufferedImage pageImage = renderer.renderImageWithDPI(pageIndex, RASTER_DPI, ImageType.RGB);
+                PDImageXObject image = JPEGFactory.createFromImage(target, pageImage, JPEG_QUALITY);
+                try (PDPageContentStream cs = new PDPageContentStream(target, targetPage)) {
+                    cs.drawImage(image, 0, 0, mediaBox.getWidth(), mediaBox.getHeight());
+                }
+            }
+
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            doc.save(out);
-            return new CleanResult(out.toByteArray(), redactions);
+            target.save(out);
+            return out.toByteArray();
         }
     }
 

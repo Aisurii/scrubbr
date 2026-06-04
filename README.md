@@ -7,7 +7,7 @@ Files are processed in memory and never written to disk.
 ## What it does
 
 - **Images (JPEG/PNG):** reveals EXIF/GPS metadata (location, device, timestamps) and strips it.
-- **PDF:** reveals document metadata and scans the text for emails, phone numbers, credit-card numbers (Luhn-checked), SSNs and IPs — then wipes the metadata and redacts the matches.
+- **PDF:** reveals document metadata and scans the text for emails, phone numbers, credit-card numbers (Luhn-checked), SSNs and IPs — then wipes the metadata and returns a flattened copy where redacted text is no longer extractable.
 - Detects the real file type from its bytes, not the extension.
 
 ## Stack
@@ -38,4 +38,3 @@ java -jar target/scrubbr-1.0.0.jar
 curl -F "file=@photo.jpg" http://localhost:8080/api/analyze
 curl -F "file=@photo.jpg" http://localhost:8080/api/clean -o photo-scrubbed.jpg
 ```
-
