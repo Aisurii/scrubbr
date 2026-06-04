@@ -2,6 +2,7 @@ package com.scrubbr.web;
 
 import com.scrubbr.model.AnalysisReport;
 import com.scrubbr.service.ScrubberService;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,10 @@ public class ScrubberController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + cleaned.fileName() + "\"")
+                        ContentDisposition.attachment()
+                                .filename(cleaned.fileName())
+                                .build()
+                                .toString())
                 .contentType(MediaType.parseMediaType(cleaned.contentType()))
                 .body(cleaned.data());
     }
