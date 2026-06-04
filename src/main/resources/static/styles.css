@@ -1,0 +1,126 @@
+:root {
+    --bg: #0f1117;
+    --panel: #181b24;
+    --panel-2: #1f2330;
+    --text: #e7e9ee;
+    --muted: #9aa1b1;
+    --accent: #4f8cff;
+    --accent-2: #6ee7b7;
+    --high: #ff5d6c;
+    --medium: #ffb454;
+    --low: #6ee7b7;
+    --border: #2a2f3d;
+    --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: radial-gradient(1200px 600px at 50% -10%, #1a2030, var(--bg));
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    padding: 48px 20px 12px;
+}
+
+header h1 { font-size: 2.6rem; margin: 0; letter-spacing: -1px; }
+.tagline { color: var(--muted); font-size: 1.1rem; margin-top: 8px; }
+
+main {
+    width: 100%;
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 24px 20px;
+    flex: 1;
+}
+
+.dropzone {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    background: var(--panel);
+    padding: 56px 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .1s;
+}
+.dropzone:hover { border-color: var(--accent); }
+.dropzone.dragover { border-color: var(--accent); background: var(--panel-2); transform: scale(1.01); }
+.dropzone .big { font-size: 1.35rem; margin: 0 0 6px; }
+.muted { color: var(--muted); }
+.small { font-size: .85rem; }
+
+.link {
+    background: none; border: none; color: var(--accent);
+    cursor: pointer; font: inherit; padding: 0; text-decoration: underline;
+}
+
+.status {
+    margin-top: 20px; padding: 16px 20px; border-radius: var(--radius);
+    background: var(--panel); border: 1px solid var(--border);
+}
+.status.error { border-color: var(--high); color: #ffd2d6; }
+.spinner {
+    display: inline-block; width: 16px; height: 16px; margin-right: 10px;
+    border: 2px solid var(--muted); border-top-color: var(--accent);
+    border-radius: 50%; animation: spin .8s linear infinite; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.report { margin-top: 24px; }
+.summary {
+    font-size: 1.15rem; font-weight: 600; padding: 16px 20px;
+    background: var(--panel-2); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 20px;
+}
+
+.results-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+@media (max-width: 720px) { .results-grid { grid-template-columns: 1fr; } }
+
+.panel {
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 18px 20px;
+}
+.panel h2 { font-size: 1.05rem; margin: 0 0 14px; color: var(--text); }
+
+.item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.item:last-child { border-bottom: none; }
+.badge {
+    flex: none; font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 999px; letter-spacing: .04em; margin-top: 2px;
+}
+.badge.high { background: rgba(255,93,108,.15); color: var(--high); }
+.badge.medium { background: rgba(255,180,84,.15); color: var(--medium); }
+.badge.low { background: rgba(110,231,183,.12); color: var(--low); }
+.item .label { font-weight: 600; }
+.item .value { color: var(--muted); word-break: break-word; font-size: .92rem; }
+.item .group { color: var(--muted); font-size: .75rem; }
+
+.empty { color: var(--muted); font-style: italic; padding: 8px 0; }
+
+.actions { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+button.primary, button.secondary {
+    font: inherit; font-weight: 600; padding: 12px 22px;
+    border-radius: 10px; cursor: pointer; border: 1px solid transparent;
+}
+button.primary { background: var(--accent); color: white; }
+button.primary:hover { filter: brightness(1.1); }
+button.primary:disabled { opacity: .6; cursor: default; }
+button.secondary { background: transparent; color: var(--text); border-color: var(--border); }
+button.secondary:hover { border-color: var(--accent); }
+
+footer {
+    text-align: center; color: var(--muted); font-size: .85rem;
+    padding: 28px 20px; border-top: 1px solid var(--border);
+}
+
+.hidden { display: none; }

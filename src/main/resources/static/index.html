@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Scrubbr — clean your files before you share them</title>
+    <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<header>
+    <h1>🧼 Scrubbr</h1>
+    <p class="tagline">See what your files secretly reveal — then strip it out before you share.</p>
+</header>
+
+<main>
+    <section id="dropzone" class="dropzone">
+        <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" hidden/>
+        <div class="dropzone-inner">
+            <p class="big">Drop an image or PDF here</p>
+            <p class="muted">or <button type="button" id="browseBtn" class="link">browse your files</button></p>
+            <p class="muted small">JPEG · PNG · PDF — processed in memory, never stored.</p>
+        </div>
+    </section>
+
+    <section id="status" class="status hidden"></section>
+
+    <section id="report" class="report hidden">
+        <div class="summary" id="summary"></div>
+
+        <div class="results-grid">
+            <div class="panel" id="metadataPanel">
+                <h2>Hidden metadata</h2>
+                <div id="metadataList"></div>
+            </div>
+            <div class="panel" id="piiPanel">
+                <h2>Sensitive data in content</h2>
+                <div id="piiList"></div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button id="cleanBtn" class="primary">Download cleaned file ↓</button>
+            <button id="resetBtn" class="secondary">Check another file</button>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p>Scrubbr is open source. Files are processed in memory and discarded immediately — nothing is logged or stored.</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
