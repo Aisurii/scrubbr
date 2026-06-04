@@ -96,14 +96,29 @@ public class PdfService {
 
             for (int pageIndex = 0; pageIndex < source.getNumberOfPages(); pageIndex++) {
                 PDPage sourcePage = source.getPage(pageIndex);
-                PDRectangle mediaBox = sourcePage.getMediaBox();
-                PDPage targetPage = new PDPage(new PDRectangle(mediaBox.getWidth(), mediaBox.getHeight()));
-                target.addPage(targetPage);
+                PDRectangle cropBox = sourcePage.getCropBox();
+
+                long widthPx = Math.round(cropBox.getWidth() / 72f * RASTER_DPI);
+                long heightPx = Math.round(cropBox.getHeight() / 72f * RASTER_DPI);
+                long maxPagePixels = 25_000_000L;
+                if (widthPx <= 0 || heightPx <= 0 || widthPx > maxPagePixels / heightPx) {
+                    throw new IllegalArgumentException("PDF page is too large to safely flatten.");
+                }
 
                 BufferedImage pageImage = renderer.renderImageWithDPI(pageIndex, RASTER_DPI, ImageType.RGB);
-                PDImageXObject image = JPEGFactory.createFromImage(target, pageImage, JPEG_QUALITY);
-                try (PDPageContentStream cs = new PDPageContentStream(target, targetPage)) {
-                    cs.drawImage(image, 0, 0, mediaBox.getWidth(), mediaBox.getHeight());
+                try {
+                    float widthPt = pageImage.getWidth() * 72f / RASTER_DPI;
+                    float heightPt = pageImage.getHeight() * 72f / RASTER_DPI;
+
+                    PDPage targetPage = new PDPage(new PDRectangle(widthPt, heightPt));
+                    target.addPage(targetPage);
+
+                    PDImageXObject image = JPEGFactory.createFromImage(target, pageImage, JPEG_QUALITY);
+                    try (PDPageContentStream cs = new PDPageContentStream(target, targetPage)) {
+                        cs.drawImage(image, 0, 0, widthPt, heightPt);
+                    }
+                } finally {
+                    pageImage.flush();
                 }
             }
 
